@@ -8,7 +8,9 @@ class Reception {
 	constructor() {
 		this.emitter = emitter;
 	}
-	init(config) {}
+	init(config) {
+
+	}
 	launch() {
 		return Promise.resolve(true);
 	}
@@ -17,12 +19,13 @@ class Reception {
 
 		table_template.interval = [now, now];
 		table_template.department = ['department-1'];
-
-		this.emitter.addTask('reports', {
+		console.log(table_template);
+		return this.emitter.addTask('reports', {
 			_action: 'get-table',
-			table: template
+			table: table_template
 		}).then(d => {
 			console.log(d);
+			return d;
 		});
 	}
 	actionWorkstationInfo() {

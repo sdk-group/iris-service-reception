@@ -9,20 +9,20 @@ module.exports = {
 	params: [{
 		id: "issued-tickets",
 		aggregator: "count",
-		filter: ['hasEventRegister OR hasEventActive']
+		filter: ['hasEventRegister OR hasEventActivate']
 	}, {
 		id: "issued-tickets-services",
 		key: "service_count",
 		aggregator: "sum",
-		filter: ['hasEventRegister OR hasEventActive']
+		filter: ['hasEventRegister OR hasEventActivate']
 	}, {
 		id: "in-room",
 		aggregator: "count",
-		filter: ['hasEventRegister OR hasEventActive', '!hasEventClose']
+		filter: ['hasEventRegister OR hasEventActivate', '!hasEventClose']
 	}, {
 		id: "in-room-waiting",
 		aggregator: "count",
-		filter: ['hasEventRegister OR hasEventActive', '!hasEventCall', '!hasEventClose']
+		filter: ['hasEventRegister OR hasEventActivate', '!hasEventCall', '!hasEventClose']
 	}, {
 		id: "in-room-processing",
 		aggregator: "count",
@@ -30,7 +30,7 @@ module.exports = {
 	}, {
 		id: "in-room-postponed",
 		aggregator: "count",
-		filter: ['hasEventPostponed', '!hasEventClose']
+		filter: ['hasEventPostpone', '!hasEventClose']
 	}, {
 		id: "processed",
 		aggregator: "count",
@@ -42,6 +42,6 @@ module.exports = {
 	}, {
 		id: "total-prebook",
 		aggregator: "count",
-		filter: ['hasEventActive']
+		filter: ['hasEventActivate']
 	}]
 };
