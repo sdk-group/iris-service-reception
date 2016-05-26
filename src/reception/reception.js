@@ -14,11 +14,11 @@ class Reception {
 	launch() {
 		return Promise.resolve(true);
 	}
-	actionServiceInfo() {
+	actionServiceInfo(params) {
 		let now = moment().format();
 
 		table_template.interval = [now, now];
-		table_template.department = ['department-1'];
+		table_template.department = params.department;
 		console.log(table_template);
 		return this.emitter.addTask('reports', {
 			_action: 'get-table',
