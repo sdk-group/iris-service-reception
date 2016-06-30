@@ -33,17 +33,21 @@ class Reception {
 
     let requests = {
       active_tickets: this.getTodayStats(params, active_tickets),
-      active_workstations: patchwerk.get('ActionWorkstation', {
+      workstations: patchwerk.get('Workstation', {
         department: params.department
       })
     };
 
     return Promise.props(requests).then(data => {
-      _.forEach(data.active_tickets, ticket => {
+      let workstations = data.workstations;
 
+      _.forEach(data.active_tickets, ticket => {
+        let dest = ticket.destination;
+        let owner = _.find(workstations, ['id', dest]);
+        owner.current_ticket = ticket;
       });
 
-      return data.active_workstations;
+      return workstations;
     });
   }
 }
