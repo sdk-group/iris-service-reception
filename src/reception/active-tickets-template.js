@@ -7,7 +7,8 @@ module.exports = {
   params: {
     'active': {
       aggregator: "sum",
-      filter: ['hasEventProcessing OR hasEventCall', '!hasEventClose']
+      filter: ['state = processing'],
+      meta: ["destination", "@id", "service"]
     }
   }
 };
