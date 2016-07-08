@@ -27,39 +27,39 @@ module.exports = {
 		},
 		"waiting": {
 			aggregator: "count",
-			filter: ['hasEventRegister OR hasEventActivate', '!hasEventCall', '!hasEventClose']
+			filter: ['state = registered']
 		},
 		"waiting-services": {
 			key: "service_count",
 			aggregator: "sum",
-			filter: ['hasEventRegister OR hasEventActivate', '!hasEventCall', '!hasEventClose']
+			filter: ['state = registered']
 		},
 		"processing": {
 			aggregator: "count",
-			filter: ['hasEventProcessing', '!hasEventClose']
+			filter: ['state = processing']
 		},
 		"processing-services": {
 			key: "service_count",
 			aggregator: "sum",
-			filter: ['hasEventProcessing', '!hasEventClose']
+			filter: ['state = processing']
 		},
 		"postponed": {
 			aggregator: "count",
-			filter: ['hasEventPostpone', '!hasEventClose']
+			filter: ['state = postponed']
 		},
 		"postponed-services": {
 			key: "service_count",
 			aggregator: "sum",
-			filter: ['hasEventPostpone', '!hasEventClose']
+			filter: ['state = postponed']
 		},
 		"processed": {
 			aggregator: "count",
-			filter: ['hasEventClose']
+			filter: ['state = closed']
 		},
 		"processed-services": {
 			key: "service_count",
 			aggregator: "sum",
-			filter: ['hasEventClose']
+			filter: ['state = closed']
 		},
 		"total-live": {
 			aggregator: "count",
