@@ -35,6 +35,28 @@ class Reception {
 	actionServiceInfo(params) {
 		return this.getTodayStats(params, table_template)
 	}
+	actionServiceDetails(params) {
+		let services = params.service ? _.castArray(params.service) : [];
+		let conditions = _.map(services, service => 'service = ' + service);
+		let first_name = _.head(params.param_names)
+
+		let picked = _.chain(table_template.params)
+			.pick(first_name)
+			.cloneDeep()
+			.mapValues(param => {
+				param.meta = ['@id', 'label', 'service', 'user_info'];
+				param.filter = _.concat(conditions, param.filter);
+				return param;
+			})
+			.value();
+
+		let template = {
+			entity: 'Ticket',
+			params: picked
+		};
+
+		return this.getTodayStats(params, template).then(response => _.get(response, ['nogroup', first_name, 'meta']))
+	}
 	actionWorkstationInfo(params) {
 		// return patchwerk.get('WorkstationCache', {
 		//   department: params.department
@@ -49,7 +71,7 @@ class Reception {
 
 		return Promise.props(requests).then(data => {
 			let workstations = _.transform(data.workstations, (acc, ws) => {
-				acc.push(_.pick(ws, ['id', 'label', 'occupied_by', 'provides']));
+				acc.push(_.pick(ws, ['id', 'label', 'occupied_by', 'provides', 'state']));
 			}, []) || [];
 			// let workstations = data.workstations || [];
 
