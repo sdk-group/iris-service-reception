@@ -33,7 +33,24 @@ class Reception {
 		});
 	}
 	actionServiceInfo(params) {
-		return this.getTodayStats(params, table_template)
+		let stats = this.getTodayStats(params, table_template);
+		let available = this.emitter.addTask('prebook', {
+			_action: 'service-stats'
+		});
+
+		return Promise.props({
+			stats: stats,
+			available: available
+		}).then((data) => {
+			let result = data.stats;
+			_.forEach(data.available, (param, service) => {
+				let key = service + '--enum-service';
+				_.set(result, [key, 'live-slots'], param.live_slots_count);
+				_.set(result, [key, 'prebook-slots'], param.prebook_slots_count);
+			});
+
+			return result;
+		})
 	}
 	actionServiceDetails(params) {
 		let services = params.service ? _.castArray(params.service) : [];
@@ -89,3 +106,4 @@ class Reception {
 }
 
 module.exports = Reception;
+orts = Reception;
