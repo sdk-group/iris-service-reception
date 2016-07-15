@@ -36,7 +36,8 @@ class Reception {
 	actionServiceInfo(params) {
 		let stats = this.getTodayStats(params, table_template);
 		let available = this.emitter.addTask('prebook', {
-			_action: 'service-stats'
+			_action: 'service-stats',
+			organization: params.department
 		});
 
 		return Promise.props({
