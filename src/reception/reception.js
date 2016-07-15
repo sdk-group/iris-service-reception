@@ -22,7 +22,8 @@ class Reception {
 		return Promise.resolve(true);
 	}
 	getTodayStats(params, template) {
-		let now = moment().format();
+		let now = moment()
+			.format();
 
 		template.interval = [now, now];
 		template.department = params.department;
@@ -39,18 +40,19 @@ class Reception {
 		});
 
 		return Promise.props({
-			stats: stats,
-			available: available
-		}).then((data) => {
-			let result = data.stats;
-			_.forEach(data.available, (param, service) => {
-				let key = service + '--enum-service';
-				_.set(result, [key, 'live-slots'], param.live_slots_count);
-				_.set(result, [key, 'prebook-slots'], param.prebook_slots_count);
-			});
+				stats: stats,
+				available: available
+			})
+			.then((data) => {
+				let result = data.stats;
+				_.forEach(data.available, (param, service) => {
+					let key = service + '--enum-service';
+					_.set(result, [key, 'live-slots'], param.live_slots_count);
+					_.set(result, [key, 'prebook-slots'], param.prebook_slots_count);
+				});
 
-			return result;
-		})
+				return result;
+			})
 	}
 	actionServiceDetails(params) {
 		let services = params.service ? _.castArray(params.service) : [];
@@ -72,7 +74,8 @@ class Reception {
 			params: picked
 		};
 
-		return this.getTodayStats(params, template).then(response => _.get(response, ['nogroup', first_name, 'meta']))
+		return this.getTodayStats(params, template)
+			.then(response => _.get(response, ['nogroup', first_name, 'meta']))
 	}
 	actionWorkstationInfo(params) {
 		// return patchwerk.get('WorkstationCache', {
@@ -86,24 +89,24 @@ class Reception {
 			})
 		};
 
-		return Promise.props(requests).then(data => {
-			let workstations = _.transform(data.workstations, (acc, ws) => {
-				acc.push(_.pick(ws, ['id', 'label', 'occupied_by', 'provides', 'state']));
-			}, []) || [];
-			// let workstations = data.workstations || [];
+		return Promise.props(requests)
+			.then(data => {
+				let workstations = _.transform(data.workstations, (acc, ws) => {
+					acc.push(_.pick(ws, ['id', 'label', 'occupied_by', 'provides', 'state']));
+				}, []) || [];
+				// let workstations = data.workstations || [];
 
-			_.forEach(data.active_tickets, ticket => {
-				let meta = _.head(ticket.active.meta);
-				let dest = meta.destination;
+				_.forEach(data.active_tickets, ticket => {
+					let meta = _.head(ticket.active.meta);
+					let dest = meta.destination;
 
-				let owner = _.find(workstations, ['id', dest]);
-				if (owner) owner.current_ticket = meta;
+					let owner = _.find(workstations, ['id', dest]);
+					if (owner) owner.current_ticket = meta;
+				});
+
+				return workstations;
 			});
-
-			return workstations;
-		});
 	}
 }
 
 module.exports = Reception;
-orts = Reception;
