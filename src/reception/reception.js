@@ -6,9 +6,13 @@ let patchwerk = require('patchwerk')(emitter);
 let table_template = require('./service-info-template.js');
 let active_tickets = require('./active-tickets-template.js');
 
+
 class Reception {
 	constructor() {
 		this.emitter = emitter;
+		//@FIXIT: make solid concept
+		this.cached_service_info = {};
+		this.cache_ttl = 15000;
 	}
 	init(config) {}
 	launch() {
@@ -33,6 +37,15 @@ class Reception {
 		});
 	}
 	actionServiceInfo(params) {
+		//@FIXIT: event model here
+		let now = Date.now();
+		let department = params.department;
+		let timestamp = _.get(this.cached_service_info, [department, 'timestamp']) || 0;
+
+		if (now - timestamp < this.cache_ttl) {
+			return _.get(this.cached_service_info, [department, 'value']);
+		}
+
 		let stats = this.getTodayStats(params, table_template);
 		let available = this.emitter.addTask('prebook', {
 			_action: 'service-stats'
@@ -48,6 +61,12 @@ class Reception {
 				_.set(result, [key, 'live-slots'], param.live_slots_count);
 				_.set(result, [key, 'prebook-slots'], param.prebook_slots_count);
 			});
+
+			//@FIXIT: event model here
+			this.cached_service_info[department] = {
+				timestamp: Date.now(),
+				value: result
+			};
 
 			return result;
 		})
@@ -74,6 +93,7 @@ class Reception {
 
 		return this.getTodayStats(params, template).then(response => _.get(response, ['nogroup', first_name, 'meta']))
 	}
+
 	actionWorkstationInfo(params) {
 		// return patchwerk.get('WorkstationCache', {
 		//   department: params.department
