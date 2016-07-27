@@ -36,45 +36,6 @@ class Reception {
 			table: template
 		});
 	}
-	actionServiceInfo(params) {
-		//@FIXIT: event model here
-		let now = Date.now();
-		let department = params.department;
-		let timestamp = _.get(this.cached_service_info, [department, 'timestamp']) || 0;
-
-		if (now - timestamp < this.cache_ttl) {
-			return _.get(this.cached_service_info, [department, 'value']);
-		}
-
-		let stats = this.getTodayStats(params, table_template);
-		let available = this.emitter.addTask('prebook', {
-			_action: 'service-stats',
-			organization: params.department
-		});
-
-		return Promise.props({
-				stats: stats,
-				available: available
-			})
-			.then((data) => {
-				let result = data.stats;
-
-				_.forEach(data.available, (param, service) => {
-					let key = service + '--enum-service';
-					_.set(result, [key, 'live-slots'], param.live_slots_count);
-					_.set(result, [key, 'prebook-slots'], param.prebook_slots_count);
-				});
-
-				//@FIXIT: event model here
-				this.cached_service_info[department] = {
-					timestamp: Date.now(),
-					value: result
-				};
-
-				return result;
-			})
-
-	}
 	actionServiceDetails(params) {
 		let services = params.service ? _.castArray(params.service) : [];
 		let conditions = _.map(services, service => 'service = ' + service);
@@ -98,11 +59,48 @@ class Reception {
 		return this.getTodayStats(params, template)
 			.then(response => _.get(response, ['nogroup', first_name, 'meta']))
 	}
+	actionServiceInfo(params) {
+			//@FIXIT: event model here
+			let now = Date.now();
+			let department = params.department;
+			let timestamp = _.get(this.cached_service_info, [department, 'timestamp']) || 0;
 
-	actionWorkstationInfo(params) {
-		// return patchwerk.get('WorkstationCache', {
-		//   department: params.department
-		// });
+			if (now - timestamp < this.cache_ttl) {
+				return _.get(this.cached_service_info, [department, 'value']);
+			}
+
+			let stats = this.getTodayStats(params, table_template);
+			let available = this.emitter.addTask('prebook', {
+				_action: 'service-stats',
+				organization: params.department
+			});
+
+			//@WARNING: this so ugly
+			this._getWorkstationInfo(params).then(workstations => _.set(this.cached_service_info, [department, 'workstations'], workstations));
+
+			return Promise.props({
+					stats: stats,
+					available: available
+				})
+				.then((data) => {
+					let result = data.stats;
+
+					_.forEach(data.available, (param, service) => {
+						let key = service + '--enum-service';
+						_.set(result, [key, 'live-slots'], param.live_slots_count);
+						_.set(result, [key, 'prebook-slots'], param.prebook_slots_count);
+					});
+
+					//@FIXIT: event model here
+					_.set(this.cached_service_info, [department, 'timestamp'], Date.now());
+					_.set(this.cached_service_info, [department, 'value'], result);
+
+					return result;
+				})
+
+		}
+		//@WARNING: rework it
+	_getWorkstationInfo(params) {
 		let requests = {
 			active_tickets: this.getTodayStats(params, active_tickets),
 			workstations: patchwerk.get('Workstation', {
@@ -128,6 +126,11 @@ class Reception {
 
 				return workstations;
 			});
+	}
+
+	//@WARNING: rework it
+	actionWorkstationInfo(params) {
+		return _.get(this.cached_service_info, [params.department, 'workstations'])
 	}
 }
 
