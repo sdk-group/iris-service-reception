@@ -128,10 +128,33 @@ class Reception {
 			});
 	}
 
+	actionQueryTickets(query) {
+		let filter = `${query.field} contains ${query.text}`;
+		let params = {
+			department: query.department
+		};
+
+		let template = {
+			entity: 'Ticket',
+			params: {
+				tickets: {
+					meta: "all",
+					filter: [filter],
+					aggregator: "count"
+				}
+			}
+		};
+
+		let path = ['nogroup', 'tickets', 'meta'];
+
+		return this.getTodayStats(params, template).then(q => _.get(q, path))
+	}
+
 	//@WARNING: rework it
 	actionWorkstationInfo(params) {
 		return _.get(this.cached_service_info, [params.department, 'workstations'])
 	}
+
 }
 
-module.exports = Reception;
+module.exports = Reception;;
