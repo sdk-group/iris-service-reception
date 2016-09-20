@@ -129,7 +129,7 @@ class Reception {
 	}
 
 	actionQueryTickets(query) {
-		let filter = `${query.field} contains ${query.text}`;
+
 		let params = {
 			department: query.department
 		};
@@ -139,11 +139,16 @@ class Reception {
 			params: {
 				tickets: {
 					meta: "all",
-					filter: [filter],
 					aggregator: "count"
 				}
 			}
 		};
+
+		let filter = [];
+		if (query.field != 'service' && query.text) filter = [`${query.field} contains ${query.text}`];
+		if (query.field == 'service' && query.text) filter = [`${query.field} in ${query.text}`];
+
+		template.params.tickets.filter = filter;
 
 		let path = ['nogroup', 'tickets', 'meta'];
 
