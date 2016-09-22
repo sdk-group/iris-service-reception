@@ -38,7 +38,12 @@ class Reception {
 	}
 	actionServiceDetails(params) {
 		let services = params.service ? _.castArray(params.service) : [];
-		let conditions = _.map(services, service => 'service = ' + service);
+		let condition;
+		if (_.isEmpty(services)) {
+			condition = false;
+		} else {
+			condition = services.length > 1 ? 'service in ' + services.join(',') : 'service = ' + services[0];
+		}
 		let first_name = _.head(params.param_names)
 
 		let picked = _.chain(table_template.params)
@@ -46,7 +51,7 @@ class Reception {
 			.cloneDeep()
 			.mapValues(param => {
 				param.meta = ['@id', 'label', 'service', 'user_info'];
-				param.filter = _.concat(conditions, param.filter);
+				!!condition && param.filter.push(condition);
 				return param;
 			})
 			.value();
@@ -162,4 +167,4 @@ class Reception {
 
 }
 
-module.exports = Reception;;
+module.exports = Reception;
