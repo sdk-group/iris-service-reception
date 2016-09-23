@@ -50,7 +50,7 @@ class Reception {
 			.pick(first_name)
 			.cloneDeep()
 			.mapValues(param => {
-				param.meta = ['@id', 'label', 'service', 'user_info'];
+				param.meta = 'all';
 				!!condition && param.filter.push(condition);
 				return param;
 			})
