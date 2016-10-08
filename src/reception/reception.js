@@ -13,6 +13,7 @@ class Reception {
 		//@FIXIT: make solid concept
 		this.cached_service_info = {};
 		this.cache_ttl = 15000;
+		this.zones = {};
 	}
 	init(config) {}
 	launch() {
@@ -25,8 +26,27 @@ class Reception {
 		console.log('Reception');
 		return Promise.resolve(true);
 	}
+	getNow(department) {
+		if (this.zones[department]) {
+			let zone = this.zones[department];
+			return moment().tz(zone).format();
+		}
+
+		this.emitter.addTask('workstation', {
+				_action: 'organization-data',
+				organization: department
+			})
+			.then(res => res[department])
+			.then(dep => {
+				if (_.has(dep, ['org_merged', 'org_timezone'])) {
+					this.zones[department] = dep.org_merged.org_timezone;
+				}
+			});
+
+		return moment().format();
+	}
 	getTodayStats(params, template) {
-		let now = moment().format();
+		let now = this.getNow(params.department);
 
 		template.interval = [now, now];
 		template.department = params.department;
@@ -66,7 +86,7 @@ class Reception {
 	}
 	actionServiceInfo(params) {
 			//@FIXIT: event model here
-			let now = Date.now();
+			let now = this.getNow(params.department);
 			let department = params.department;
 			let timestamp = _.get(this.cached_service_info, [department, 'timestamp']) || 0;
 
