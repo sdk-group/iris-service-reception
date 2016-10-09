@@ -26,7 +26,9 @@ class Reception {
 		console.log('Reception');
 		return Promise.resolve(true);
 	}
-	getNow(department) {
+	getNow(departments) {
+		let department = _.head(_.castArray(departments));
+
 		if (this.zones[department]) {
 			let zone = this.zones[department];
 			return moment().tz(zone).format();
@@ -38,9 +40,9 @@ class Reception {
 			})
 			.then(res => res[department])
 			.then(dep => {
-				if (_.has(dep, ['org_merged', 'org_timezone'])) {
-					this.zones[department] = dep.org_merged.org_timezone;
-				}
+				if (!_.has(dep, ['org_merged', 'org_timezone'])) return false;
+
+				this.zones[department] = dep.org_merged.org_timezone;
 			});
 
 		return moment().format();
