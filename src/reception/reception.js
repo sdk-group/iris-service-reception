@@ -184,7 +184,7 @@ class Reception {
 
 	//@WARNING: rework it
 	actionWorkstationInfo(params) {
-		return _.get(this.cached_service_info, [params.department, 'workstations'])
+		return this._getWorkstationInfo(params);
 	}
 
 }
