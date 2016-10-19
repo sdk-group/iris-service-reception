@@ -184,7 +184,7 @@ class Reception {
 	actionWorkstationInfo(params) {
 		let now = Date.now();
 		let department = params.department;
-		let timestamp = _.get(this.cached_service_info, [department, 'timestamp']) || 0;
+		let timestamp = _.get(this.cached_workstation_info, [department, 'timestamp']) || 0;
 
 		if (now - timestamp < this.cache_ttl) {
 			return _.get(this.cached_workstation_info, [department, 'workstations']);
