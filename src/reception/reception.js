@@ -3,8 +3,8 @@
 let emitter = require("global-queue");
 let patchwerk = require('patchwerk')(emitter);
 
-let table_template = require('./service-info-template.js');
-let active_tickets = require('./active-tickets-template.js');
+let TABLE_TEMPLATE = require('./service-info-template.js');
+let ACTIVE_TICKETS_TEMPLATE = require('./active-tickets-template.js');
 
 
 class Reception {
@@ -12,6 +12,7 @@ class Reception {
 		this.emitter = emitter;
 		//@FIXIT: make solid concept
 		this.cached_service_info = {};
+		this.cached_workstation_info = {};
 		this.cache_ttl = 15000;
 		this.zones = {};
 	}
@@ -68,7 +69,7 @@ class Reception {
 		}
 		let first_name = _.head(params.param_names)
 
-		let picked = _.chain(table_template.params)
+		let picked = _.chain(TABLE_TEMPLATE.params)
 			.pick(first_name)
 			.cloneDeep()
 			.mapValues(param => {
@@ -88,7 +89,7 @@ class Reception {
 	}
 	actionServiceInfo(params) {
 			//@FIXIT: event model here
-			let now = this.getNow(params.department);
+			let now = Date.now();
 			let department = params.department;
 			let timestamp = _.get(this.cached_service_info, [department, 'timestamp']) || 0;
 
@@ -96,14 +97,11 @@ class Reception {
 				return _.get(this.cached_service_info, [department, 'value']);
 			}
 
-			let stats = this.getTodayStats(params, table_template);
+			let stats = this.getTodayStats(params, TABLE_TEMPLATE);
 			let available = this.emitter.addTask('prebook', {
 				_action: 'service-stats',
 				organization: params.department
 			});
-
-			//@WARNING: this so ugly
-			this._getWorkstationInfo(params).then(workstations => _.set(this.cached_service_info, [department, 'workstations'], workstations));
 
 			return Promise.props({
 					stats: stats,
@@ -129,7 +127,7 @@ class Reception {
 		//@WARNING: rework it
 	_getWorkstationInfo(params) {
 		let requests = {
-			active_tickets: this.getTodayStats(params, active_tickets),
+			active_tickets: this.getTodayStats(params, ACTIVE_TICKETS_TEMPLATE),
 			workstations: patchwerk.get('Workstation', {
 				department: params.department,
 				counter: '*'
@@ -184,7 +182,19 @@ class Reception {
 
 	//@WARNING: rework it
 	actionWorkstationInfo(params) {
-		return this._getWorkstationInfo(params);
+		let now = Date.now();
+		let department = params.department;
+		let timestamp = _.get(this.cached_service_info, [department, 'timestamp']) || 0;
+
+		if (now - timestamp < this.cache_ttl) {
+			return _.get(this.cached_workstation_info, [department, 'workstations']);
+		}
+
+		return this._getWorkstationInfo(params).then(workstations => {
+			_.set(this.cached_workstation_info, [department, 'workstations'], workstations);
+
+			return workstations;
+		});
 	}
 
 }
