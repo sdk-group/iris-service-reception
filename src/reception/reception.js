@@ -173,6 +173,8 @@ class Reception {
 		if (query.field != 'service' && query.text) filter = [`${query.field} contains ${query.text}`];
 		if (query.field == 'service' && query.text) filter = [`${query.field} in ${query.text}`];
 
+		if (query.field == 'session') filter.push('pack_member = 1');
+
 		template.params.tickets.filter = filter;
 
 		let path = ['nogroup', 'tickets', 'meta'];
