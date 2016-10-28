@@ -49,7 +49,7 @@ class Reception {
 		return moment().format();
 	}
 	getTodayStats(params, template) {
-		let now = this.getNow(params.department);
+		let now = params.date || this.getNow(params.department);
 
 		template.interval = [now, now];
 		template.department = params.department;
@@ -158,6 +158,10 @@ class Reception {
 		let params = {
 			department: query.department
 		};
+
+		if (_.isString(query.date)) {
+			params.date = query.date;
+		}
 
 		let template = {
 			entity: 'Ticket',
