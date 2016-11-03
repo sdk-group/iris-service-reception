@@ -9,6 +9,7 @@ let tasks = [];
 
 module.exports = {
 	module: require('./reception.js'),
+	name: 'reception',
 	permissions: [],
 	tasks: tasks,
 	exposed: true,
