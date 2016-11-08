@@ -18,12 +18,12 @@ module.exports = {
 		},
 		"in-room": {
 			aggregator: "count",
-			filter: ['hasEventRegister OR hasEventActivate', '!hasEventClose', '!hasEventExpire']
+			filter: ['hasEventRegister OR hasEventActivate', '!hasEventClose', '!hasEventExpire', '!hasEventRemove']
 		},
 		"in-room-services": {
 			key: "service_count",
 			aggregator: "sum",
-			filter: ['hasEventRegister OR hasEventActivate', '!hasEventClose', '!hasEventExpire']
+			filter: ['hasEventRegister OR hasEventActivate', '!hasEventClose', '!hasEventExpire', '!hasEventRemove']
 		},
 		"waiting": {
 			aggregator: "count",
