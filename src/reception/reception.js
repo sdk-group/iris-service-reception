@@ -136,6 +136,7 @@ class Reception {
 	}
 
 	actionQueryTickets(query) {
+		if (query.field == '@id') return this.getSingleTicket(query.text);
 
 		let params = {
 			department: query.department
@@ -155,17 +156,26 @@ class Reception {
 			}
 		};
 
+		template.params.tickets.filter = this.computeFilter(query);
+
+		let path = ['nogroup', 'tickets', 'meta'];
+
+		return this.getTodayStats(params, template).then(q => _.get(q, path))
+	}
+	computeFilter(query) {
 		let filter = [];
 		if (query.field != 'service' && query.text) filter = [`${query.field} contains ${query.text}`];
 		if (query.field == 'service' && query.text) filter = [`${query.field} in ${query.text}`];
 
 		if (query.field == 'session') filter.push('pack_member = 1');
 
-		template.params.tickets.filter = filter;
-
-		let path = ['nogroup', 'tickets', 'meta'];
-
-		return this.getTodayStats(params, template).then(q => _.get(q, path))
+		return filter;
+	}
+	getSingleTicket(id) {
+		return this.emitter.addTask('ticket', {
+			_action: 'by-id',
+			ticket: id
+		});
 	}
 
 	//@WARNING: rework it
@@ -187,4 +197,4 @@ class Reception {
 
 }
 
-module.exports = Reception;
+module.exports = Reception;;
