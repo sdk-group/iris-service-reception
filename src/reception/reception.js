@@ -27,29 +27,11 @@ class Reception {
 		console.log('Reception');
 		return Promise.resolve(true);
 	}
-	getNow(departments) {
-		let department = _.head(_.castArray(departments));
-
-		if (this.zones[department]) {
-			let zone = this.zones[department];
-			return moment().tz(zone).format();
-		}
-
-		this.emitter.addTask('workstation', {
-				_action: 'organization-data',
-				organization: department
-			})
-			.then(res => res[department])
-			.then(dep => {
-				if (!_.has(dep, ['org_merged', 'org_timezone'])) return false;
-
-				this.zones[department] = dep.org_merged.org_timezone;
-			});
-
-		return moment().format();
+	getNow() {
+		return 'now';
 	}
 	getTodayStats(params, template) {
-		let now = params.date || this.getNow(params.department);
+		let now = params.date || this.getNow();
 
 		template.interval = [now, now];
 		template.department = params.department;
