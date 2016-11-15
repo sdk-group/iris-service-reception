@@ -31,9 +31,9 @@ class Reception {
 		return 'now';
 	}
 	getTodayStats(params, template) {
-		let now = params.date || this.getNow();
 
-		template.interval = [now, now];
+		template.interval = params.date ? [params.date, params.date] : this.getNow();
+
 		template.department = params.department;
 
 		return this.emitter.addTask('reports', {
