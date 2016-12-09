@@ -169,7 +169,7 @@ class Reception {
 		if (query.field == 'service' && query.text) filter = [`${query.field} in ${query.text}`];
 
 		if (query.field == 'session') filter.push('pack_member = 1');
-		if (query.field == 'allInfoFields') filter = [`userInfoString contains ${query.text}`];
+		if (query.field == 'allInfoFields' && query.text) filter = [`userInfoString contains ${query.text}`];
 
 		return filter;
 	}
