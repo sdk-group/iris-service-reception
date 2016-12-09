@@ -176,7 +176,7 @@ class Reception {
 	computeTransform(query) {
 		let transform = [];
 
-		if (query.field == 'allInfoFields') transform.push('concatInfoFields');
+		if (query.field == 'allInfoFields' && query.text) transform.push('concatInfoFields');
 
 		return transform;
 	}
