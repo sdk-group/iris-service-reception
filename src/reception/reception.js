@@ -157,6 +157,7 @@ class Reception {
 		};
 
 		template.params.tickets.filter = this.computeFilter(query);
+		template.params.tickets.transform = this.computeTransform(query);
 
 		let path = ['nogroup', 'tickets', 'meta'];
 
@@ -168,8 +169,16 @@ class Reception {
 		if (query.field == 'service' && query.text) filter = [`${query.field} in ${query.text}`];
 
 		if (query.field == 'session') filter.push('pack_member = 1');
+		if (query.field == 'allInfoFields') filter = [`userInfoString contains ${query.text}`];
 
 		return filter;
+	}
+	computeTransform(query) {
+		let transform = [];
+
+		if (query.field == 'allInfoFields') transform.push('concatInfoFields');
+
+		return transform;
 	}
 	getSingleTicket(id) {
 		return this.emitter.addTask('ticket', {
@@ -197,4 +206,4 @@ class Reception {
 
 }
 
-module.exports = Reception;;
+module.exports = Reception;
