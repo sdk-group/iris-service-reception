@@ -42,32 +42,31 @@ class Reception {
 		});
 	}
 	actionServiceDetails(params) {
-		let services = params.service ? _.castArray(params.service) : [];
-		let condition;
-		if (_.isEmpty(services)) {
-			condition = false;
-		} else {
-			condition = services.length > 1 ? 'service in ' + services.join(',') : 'service = ' + services[0];
-		}
-		let first_name = _.head(params.param_names)
+		if (!params.tag) return {
+			entity: 'Ticket',
+			params: {
+				tickets: {
+					meta: "all",
+					aggregator: "count",
+					filter: []
+				}
+			}
+		};
 
-		let picked = _.chain(TABLE_TEMPLATE.params)
-			.pick(first_name)
-			.cloneDeep()
-			.mapValues(param => {
-				param.meta = 'all';
-				!!condition && param.filter.push(condition);
-				return param;
-			})
-			.value();
+		let first_name = _.head(params.tag);
+
+		let picked = _.cloneDeep(TABLE_TEMPLATE.params[first_name]);
+
+		picked.meta = 'all';
 
 		let template = {
 			entity: 'Ticket',
-			params: picked
+			params: {
+				tickets: picked
+			}
 		};
 
-		return this.getTodayStats(params, template)
-			.then(response => _.get(response, ['nogroup', first_name, 'meta']))
+		return template;
 	}
 	actionServiceInfo(params) {
 			//@FIXIT: event model here
@@ -146,17 +145,9 @@ class Reception {
 			params.date = query.date;
 		}
 
-		let template = {
-			entity: 'Ticket',
-			params: {
-				tickets: {
-					meta: "all",
-					aggregator: "count"
-				}
-			}
-		};
+		let template = this.actionServiceDetails(query);
 
-		template.params.tickets.filter = this.computeFilter(query);
+		template.params.tickets.filter = _.concat(template.params.tickets.filter, this.computeFilter(query));
 		template.params.tickets.transform = this.computeTransform(query);
 
 		let path = ['nogroup', 'tickets', 'meta'];
