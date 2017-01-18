@@ -156,11 +156,14 @@ class Reception {
 	}
 	computeFilter(query) {
 		let filter = [];
+
 		if (query.field != 'service' && query.text) filter = [`${query.field} contains ${query.text}`];
 		if (query.field == 'service' && query.text) filter = [`${query.field} in ${query.text}`];
 
 		if (query.field == 'session') filter.push('pack_member = 1');
 		if (query.field == 'allInfoFields' && query.text) filter = [`userInfoString contains ${query.text}`];
+
+		if (query.state) filter.unshift(`state = ${query.state}`);
 
 		return filter;
 	}
